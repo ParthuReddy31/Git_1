@@ -26,7 +26,8 @@ CHECK_ROOT(){
     then
         echo -e " $R ERROR:: To Install any Package USER should be ROOT"
         exit 1
-} 
+    fi
+}
 
 echo "script started Executing at : $TIMESTAMP" &>>$LOG_FILE_NAME
 
@@ -35,19 +36,24 @@ CHECK_ROOT
 dnf install mysql-server -y  &>>$LOG_FILE_NAME
 VALIDATE $? "Installing MySQL server"
 
-systemctl enable mysql-server  &>>$LOG_FILE_NAME
+systemctl enable mysqld  &>>$LOG_FILE_NAME
 VALIDATE $? "Enabling MySQL server"
 
-systemctl start mysql-server  &>>$LOG_FILE_NAME
+systemctl start mysqld  &>>$LOG_FILE_NAME
 VALIDATE $? "Starting MySQL server"
 
-mysql -h mysql.daws82s.online -u root -pExpenseApp@1 -e 'show databases;'   &>>$LOG_FILE_NAME
+mysql -h mysql.parthudevops.space -u root -pExpenseApp@1 -e 'show databases;'   &>>$LOG_FILE_NAME
 
 if [ $? -ne 0 ]
 then
-    echo -e "$R MySQL Root Password not setup $N"
+    echo -e "$Y MySQL Root Password not setup $N" &>>$LOG_FILE_NAME
     mysql_secure_installation --set-root-pass ExpenseApp@1
     VALIDATE $? "Setting Root Password"
 else
     echo -e "$G MySQL Root password already setup ... $Y SKIPPING $N"
 fi
+
+echo "--------"
+echo $( ps -ef | grep mysqld )
+echo "--------"
+echo $(netstat -lntp)
